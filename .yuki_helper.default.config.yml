@@ -1,0 +1,6 @@
+testcase:
+  aggregation: null
+  directory: "testcase"
+  prefix: "p"
+yukicoder:
+  access_token: null
