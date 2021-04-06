@@ -4,7 +4,7 @@
 Elixir専用？  
 yukicoder API を利用しています。  
 
-## できること
+## Roadmap
 
 - [ ] テストケースのダウンロード
 - [ ] テストケースをDoctest用に変換
