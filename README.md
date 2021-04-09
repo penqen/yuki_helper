@@ -1,8 +1,7 @@
 # Yukicoder Helper
 
-主に、自分用のコマンド群です。  
-Elixir専用？  
-yukicoder API を利用しています。 
+Yukicoder のテストケースダウンロードやローカルでテストケース実行などを行う`Elixir`用のヘルパーです。
+yukicoder API を利用しています。
 
 ## コマンド
 
@@ -29,11 +28,11 @@ mix yuki.download --no 10
 
 ```./yuki_helper.config.yml
 testcase:
-  aggregation: null
-  directory: "testcase"
-  prefix: "p"
+  aggregation: null     # 数値を設定する。 テストケースをその数値でサブディレクトリ化する。
+  directory: "testcase" # テストケースを保存するディレクトリ名を設定する。
+  prefix: "p"           # ある問題のテストケースを入れるディレクトリの接頭辞を指定する。
 yukicoder:
-  access_token: null
+  access_token: null    # yukicoderのAPIアクセストークンを設定する。
 ```
 
 ## Roadmap
@@ -41,5 +40,7 @@ yukicoder:
 - [x] テストケースのダウンロード
 - [ ] テストケースをDoctest用に変換
 - [ ] テストケースの実行
-  - [ ] AC/WA/RE/CE
+  - [x] CE
+  - [x] AC/WA/RE
   - [ ] TLE/MLE/OLE/QLE
+- [ ] 通信エラー系の処理対応

@@ -3,4 +3,4 @@ testcase:
   directory: "testcase"
   prefix: "p"
 yukicoder:
-  access_token: null
+  access_token: "your access token for yukicoder"

@@ -21,12 +21,15 @@ defmodule YukiHelper.Config do
 
   import YukiHelper
   alias YamlElixir, as: Yaml
+  alias YukiHelper.Exceptions.InvalidAccessTokenError
+
+  @type t() :: map()
 
   @doc """
-  設定ファイルの読み込みを行う。
+  設定ファイルを読み込む。
   """
-  @spec load() :: map()
-  def load() do
+  @spec load_without_validation() :: t()
+  def load_without_validation() do
     [
       Path.expand("~/.yuki_helper.config.{yml,yaml}"),
       Path.expand("~/.config/yuki_helper/.config.{yml,yaml}"),
@@ -46,8 +49,23 @@ defmodule YukiHelper.Config do
       end
     end)
     |> to_map_atom_keys()
-    |> validate()
-    |> case do
+  end
+
+  @doc """
+  設定ファイルの読み込み及びバリデーションを行う。
+  """
+  @spec load() :: {:ok, t()} | {:error, term()}
+  def load() do
+    validate(load_without_validation())
+  end
+
+  @doc """
+  設定ファイルの読み込み及びバリデーションを行う。
+  エラーがあれば、例外を発生させる。
+  """
+  @spec load!() :: t()
+  def load!() do
+    case load() do
       {:ok, config} ->
         config
       {:error, err} ->
@@ -58,12 +76,13 @@ defmodule YukiHelper.Config do
   @doc """
   設定内容を表示する。
   """
+  @spec show_status(t()) :: none()
   def show_status(config) do
-    IO.puts "testcase"
+    IO.puts "testcase:"
     IO.puts "  aggregation: #{config[:testcase][:aggregation]}"
     IO.puts "  directory:   #{config[:testcase][:directory]}"
     IO.puts "  prefix:      #{config[:testcase][:prefix]}"
-    IO.puts "testcase"
+    IO.puts "testcase:"
     IO.write "  access_token: "
     case validate(config, [:yukicoder, :access_token]) do
       {:ok, _} ->
@@ -73,10 +92,18 @@ defmodule YukiHelper.Config do
     end
   end
 
+  @doc """
+  `HTTPoison`で使う`headers`情報を返す。
+  """
+  @spec headers(t()) :: list()
   def headers(config) do
     ["Authorization": "Bearer #{config[:yukicoder][:access_token]}", "Accept": "Application/json; Charset=utf-8"]
   end
 
+  @doc """
+  `HTTPoison`で使う`options`情報を返す。
+  """
+  @spec options(t()) :: list()
   def options(_config) do
     [ssl: [{:versions, [:"tlsv1.2"]}], recv_timeout: 500]
   end
@@ -89,15 +116,7 @@ defmodule YukiHelper.Config do
     validate(config, [:yukicoder, :access_token])
   end
 
-  @doc """
-  指定したファイルが存在するかチェックする。
-  """
-  @spec exists(map(), atom()) :: boolean()
-  def exists(config, :testcase_dir = atom) do
-    Path.expand(config[:common][atom])
-  end
-
-  @spec validate(map(), list()) :: {:ok, map()} | {:error, term()} 
+  @spec validate(t(), list()) :: {:ok, t()} | {:error, term()} 
   def validate(config, keys)
   def validate(config, [:yukicoder, :access_token]) do
     with yuki when is_map(yuki) <- config[:yukicoder],
@@ -105,7 +124,11 @@ defmodule YukiHelper.Config do
         {:ok, config}
     else
       _ ->
-        {:error, %YukiHelper.InvalidAccessTokenError{message: "empty access token is invalid"}}
+        {:error, %InvalidAccessTokenError{message: "access token is invalid"}}
     end
   end
+
+  @spec get(t(), list(atom())) :: term()
+  def get(config, []), do: config
+  def get(config, [key | tail]), do: get(config[key], tail)
 end

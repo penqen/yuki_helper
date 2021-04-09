@@ -1,5 +1,4 @@
 defmodule Mix.Tasks.Yuki.Download do
-  use Mix.Task
   @moduledoc """
   指定された問題番号`No`のテストケースをダウンロードする。  
   同名のファイルが存在する場合は、スキップする。
@@ -37,9 +36,10 @@ defmodule Mix.Tasks.Yuki.Download do
   ```
 
   """
+  use Mix.Task
 
   import YukiHelper
-  alias YukiHelper.{Config, Api.Yukicoder}
+  alias YukiHelper.{Config, Problem}
 
   @switches [no: :integer, force: :boolean]
 
@@ -71,63 +71,38 @@ defmodule Mix.Tasks.Yuki.Download do
   end
 
   defp download(no) do
-    config = Config.load()
-    headers = Config.headers(config)
-    options = Config.options(config)
+    config = Config.load!()
 
-    problem_path = Path.expand(problem_path(config, no))
-    in_path = Path.join(problem_path, "in")
-    out_path = Path.join(problem_path, "out")
+    problem_path = Path.expand(Problem.problem_root(config, no))
+    paths = %{}
+    |> Map.put(:in, Path.join(problem_path, "in"))
+    |> Map.put(:out, Path.join(problem_path, "out"))
 
     if not File.exists?(problem_path) do
-      :ok = File.mkdir_p(in_path)
-      :ok = File.mkdir_p(out_path)
-      IO.puts "create directories\n  #{in_path}\n  #{out_path}"
+      :ok = File.mkdir_p(paths[:in])
+      :ok = File.mkdir_p(paths[:out])
+      IO.puts "create directories\n  #{paths[:in]}\n  #{paths[:out]}"
     end
 
-    download_list = "/problems/no/#{no}/file/in"
-    |> Yukicoder.get!(headers, options)
-    |> Map.get(:body)
+    testcase_list = YukiHelper.Download.get_testcases!(config, no)
 
-    IO.puts "download testcases"
-    download_list
-    |> Enum.each(fn file ->
-      in_file_path = Path.join(in_path, file)
-      out_file_path = Path.join(out_path, file)
+    testcase_list
+    |> YukiHelper.Download.download_tastcases?(config, no)
+    |> if do
+      IO.puts "testcases have already been downloaded"
+    else
+      IO.puts "download testcases : #{length(testcase_list)} files"
 
-      IO.write "  #{file} : "
-
-      if File.exists?(in_file_path) && File.exists?(out_file_path) do
-        IO.puts "[" <> warning("already exists") <> "]"
-      else
-        data = "/problems/no/#{no}/file/in/#{file}"
-        |> Yukicoder.get!(headers, options)
-        |> Map.get(:body)
-        :ok = File.write(in_file_path, "#{data}")
-
-        data = "/problems/no/#{no}/file/out/#{file}"
-        |> Yukicoder.get!(headers, options)
-        |> Map.get(:body)
-        :ok = File.write(out_file_path, "#{data}")
-
-        IO.puts "[" <> success("ok") <> "]"
-      end
-    end)
+      Enum.each(testcase_list, fn file ->
+        IO.write "  #{file} : "
+        [:in, :out]
+        |> Enum.each(fn filetype ->
+          path = Path.join(paths[filetype], file)
+          data = YukiHelper.Download.get_testcase!(config, no, file, filetype)
+          :ok = File.write(path, data)
+        end)
+        IO.puts success("ok")
+      end)
+    end
   end
-
-  defp problem_path(config, no) do
-    testcase_dir(config) <> aggr_dir(config, no) <> prefix_dir(config, no)
-  end
-
-  defp testcase_dir(config), do: config[:testcase][:directory]
-  defp aggr_dir(config, n) do
-    aggr = config[:testcase][:aggregation]
-    if aggr, do: "/#{aggregation(aggr, n, 1)}", else: ""
-  end
-  defp prefix_dir(config, no) do
-    prefix = config[:testcase][:prefix]
-    (if prefix, do: "/#{prefix}", else: "/") <> "#{no}"
-  end
-  defp aggregation(aggr, n, times) when aggr * times < n, do: aggregation(aggr, n, times + 1)
-  defp aggregation(aggr, n, times) when n <= aggr * times, do: aggr * times
 end

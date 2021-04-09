@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Yuki.Testcase do
   """
   use Mix.Task
 
-  alias YukiHelper.{Config, Api.Yukicoder}
+  alias YukiHelper.{Config, Download}
 
   @switches [no: :integer]
 
@@ -39,16 +39,13 @@ defmodule Mix.Tasks.Yuki.Testcase do
   end
 
   defp show_testcase_list(no) do
-    config = Config.load()
-    headers = Config.headers(config)
-    options = Config.options(config)
+    config = Config.load!()
 
-    files = "/problems/no/#{no}/file/in"
-    |> Yukicoder.get!(headers, options)
-    |> Map.get(:body)
+    files = config
+    |> Download.get_testcases!(no)
     |> Enum.map(&("  #{&1}"))
 
-    ["problem no. #{no} / testcase : #{length(files)} files" | files] 
+    ["problem no.#{no} / testcase : #{length(files)} files" | files] 
     |> Enum.join("\n")
     |> IO.puts 
   end
