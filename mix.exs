@@ -1,6 +1,8 @@
 defmodule YukiHelper.MixProject do
   use Mix.Project
 
+  @source_url "https://github.com/penqen/yuki_helper"
+
   def project do
     [
       app: :yuki_helper,
@@ -10,6 +12,8 @@ defmodule YukiHelper.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       name: "YukiHelper",
+      package: package(),
+      source_url: @source_url,
       docs: [
         main: "YukiHelper",
         extras: ["README.md"]
@@ -33,6 +37,16 @@ defmodule YukiHelper.MixProject do
       {:yaml_elixir, "~> 2.6"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.24.1", only: :dev}
+    ]
+  end
+
+  defp package do
+    [
+      maintainers: ["Tatsuya Hashimoto"],
+      licenses: ["MIT"],
+      links: %{
+        "GitHub" => @source_url
+      }
     ]
   end
 end
