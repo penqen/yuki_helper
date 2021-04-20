@@ -9,12 +9,12 @@ Please set the access token into your configuration file described later.
 
 ## Installation
 
-Add your project `mix.exs`
+Add to your project dependencies in `mix.exs`
 
 ```elixir
 def deps do
   [
-    {:yuki_helper, path: "../.."},
+    {:yuki_helper, "~> 0.1.0"},
   ]
 end
 ```
