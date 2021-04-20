@@ -1,19 +1,57 @@
-defmodule YukiHelper.Exceptions.InvalidAccessTokenError do
-  defexception [message: "invalid access token"]
-end
+defmodule YukiHelper.Exceptions do
+  @moduledoc false
 
-defmodule YukiHelper.Exceptions.CompileTargetNotFound do
-  defexception [message: "could not find a compile target"]
-end
+  defmodule AccessTokenError do
+    defexception [:description]
 
-defmodule YukiHelper.Exceptions.CompilerNotFound do
-  defexception [message: "could not find a compiler"]
-end
+    @impl true
+    def message(exception) do
+      "access token is invalid : #{exception.description}"
+    end
+  end
 
-defmodule YukiHelper.Exceptions.CompileFailed do
-  defexception [message: "could not compile a target"]
-end
+  defmodule ConfigurationFileError do
+    defexception [:file, :description]
 
-defmodule YukiHelper.Exceptions.DownloadFailed do
-  defexception [message: "could not download any file"]
+    @impl true
+    def message(exception) do
+      "configure file #{exception.file} #{exception.description}"
+    end
+  end
+
+  defmodule BadTargetError do
+    defexception [:target, description: "target file is not found"]
+
+    @impl true
+    def message(exception) do
+      "target `#{exception.target}` : #{exception.description}"
+    end
+  end
+
+  defmodule CompilerError do
+    defexception [:compiler, description: "compiler is not found"]
+
+    @impl true
+    def message(exception) do
+      "`#{exception.compiler}` : #{exception.description}"
+    end
+  end
+
+  defmodule CompileError do
+    defexception [:target, description: "compile error has been occurred"]
+
+    @impl true
+    def message(exception) do
+      "target: `#{exception.target}` : #{exception.description}"
+    end
+  end
+
+  defmodule DownloadError do
+    defexception [:path, :status, :description]
+
+    @impl true
+    def message(exception) do
+      "download failed #{exception.path} [#{exception.status}] : #{exception.description}"
+    end
+  end
 end

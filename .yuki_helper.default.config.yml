@@ -1,6 +1,11 @@
 testcase:
-  aggregation: null
+  # Positive integer value more than 10.
+  # If `bundile` is 100, directory of testcase for problem 10 is `testcase/100/p10`.
+  bundle: null
+  # Root direcotry of testcases to download
   directory: "testcase"
+  # Prefix of testcase `testcase/p10` and source code `lib/p10.ex`
   prefix: "p"
 yukicoder:
-  access_token: "your access token for yukicoder"
+  # Access Token for Yukicoder. Be careful to treat.
+  access_token: "your access token"

@@ -1,9 +1,9 @@
 defmodule YukiHelper.Test do
   @moduledoc """
-  対象ファイルのビルド、及びそのファイルの実行、その結果の表示を行う。
+  Provides a module to build a target with a compiler and run the its.
   """
   alias YukiHelper.{Config, Problem}
-  alias YukiHelper.Exceptions.{CompilerNotFound, CompileFailed}
+  alias YukiHelper.Exceptions.{CompilerError, CompileError}
 
   @spec compile(Path.t()) :: {:ok, String.t()} | {:error, term()}
   def compile(file) do
@@ -12,9 +12,9 @@ defmodule YukiHelper.Test do
         {:ok, msg}
     else
       nil ->
-        raise %CompilerNotFound{message: "\"elixirc\" is not found"}
+        raise %CompilerError{compiler: "elixirc"}
       {_msg, 1} ->
-        {:error, %CompileFailed{message: "could not compile `#{file}`"}}
+        {:error, %CompileError{target: file}}
     end
   end
 

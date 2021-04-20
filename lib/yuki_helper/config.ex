@@ -1,35 +1,62 @@
 defmodule YukiHelper.Config do
   @moduledoc """
-  設定ファイルの読み込み、検証、項目取得などを行う。
+  Loads configuration files.
 
-  下記の順に読み込みを行い、同じ設定は上書きされる。
+  Loading configuration files are the following:
+
   1. `~/.yukihelper.config.yml`
   2. `~/.config/yukihelper/.config.yml`
   3. `./yuki_helper.config.yml`
 
-  # 設定例
+  If there are multiple configuration filles, any same option is overridden.
 
-  ```./yuki_helper.config.yml
+  # Configuration File
+
+  ```yaml
+  # .yuki_helper.default.config.yml
   testcase:
-    aggregation: null     # 数値を設定する。 テストケースをその数値でサブディレクトリ化する。
-    directory: "testcase" # テストケースを保存するディレクトリ名を設定する。
-    prefix: "p"           # ある問題のテストケースを入れるディレクトリの接頭辞を指定する。
+    # Positive integer value more than 10.
+    # If `bundile` is 100, directory of testcase for problem 10 is `testcase/100/p10`.
+    bundle: null
+    # Root direcotry of testcases to download
+    directory: "testcase"
+    # Prefix of testcase `testcase/p10` and source code `lib/p10.ex`
+    prefix: "p"
   yukicoder:
-    access_token: null    # yukicoderのAPIアクセストークンを設定する。
+    # Access Token for Yukicoder. Be careful to treat.
+    access_token: "your access token"
   ```
   """
 
-  import YukiHelper
   alias YamlElixir, as: Yaml
-  alias YukiHelper.Exceptions.InvalidAccessTokenError
+  alias YukiHelper.Config
+  alias YukiHelper.Config.{Provider, Testcase}
+  alias YukiHelper.Exceptions.{AccessTokenError, ConfigurationFileError}
 
-  @type t() :: map()
+  defstruct testcase: %Testcase{}, yukicoder: %Provider{}
+
+  @type t() :: %__MODULE__{}
+
+  @spec new() :: t()
+  def new(), do: %__MODULE__{
+    testcase: Testcase.new(),
+    yukicoder: Provider.new()
+  }
+
+  @spec new(map() | nil) :: t()
+  def new(%{} = config) do
+    %__MODULE__{
+      testcase: Testcase.new(Map.get(config, "testcase")),
+      yukicoder: Provider.new(Map.get(config, "yukicoder"))
+    }
+  end
+  def new(_), do: new()
 
   @doc """
-  設定ファイルを読み込む。
+  Returns files to load.
   """
-  @spec load_without_validation() :: t()
-  def load_without_validation() do
+  @spec get_target_files() :: list(Path.t())
+  def get_target_files() do
     [
       Path.expand("~/.yuki_helper.config.{yml,yaml}"),
       Path.expand("~/.config/yuki_helper/.config.{yml,yaml}"),
@@ -37,98 +64,121 @@ defmodule YukiHelper.Config do
     ]
     |> Enum.map(&(Path.wildcard(&1, [match_dot: true])))
     |> List.flatten()
-    |> Enum.reduce(%{}, fn path, config ->
+  end
+
+  @doc """
+  Loads a configuration file.
+  """
+  @spec load(Path.t()) :: {:ok, Config.t()} | {:error, term()}
+  def load(path) do
+    if File.exists?(path) do
       case Yaml.read_from_file(path, [atoms: true]) do
         {:ok, yaml} ->
-          deep_merge(config, yaml)
-        {:error, err} ->
-          IO.puts "[warning]: configuration file is invalid"
-          IO.puts "  #{err.message} (line: #{err.line}, column: #{err.column})"
-          IO.puts "  in #{path}"
+          {:ok, Config.new(yaml)}
+        {:error, err = %YamlElixir.ParsingError{}} ->
+          [
+            "[warning]: configuration file is invalid",
+            "  #{YamlElixir.ParsingError.message(err)}",
+            "  in #{path}"
+          ]
+          |> Enum.join("\n")
+          |> Mix.shell().info()
+
+          {:ok, Config.new()}
+        _ ->
+          raise "an unexpected error has been occured"
+      end
+    else
+      {:error, %ConfigurationFileError{file: path, description: "is not found"}}
+    end
+  end
+
+  @doc """
+  Loads all configuration files with ignoring any error. 
+  """
+  @spec load_all() :: Config.t()
+  def load_all() do
+    Enum.reduce(get_target_files(), new(), fn path, config ->
+      case load(path) do
+        {:ok, next} ->
+          merge(config, next)
+        {:error, _} ->
           config
       end
     end)
-    |> to_map_atom_keys()
   end
 
   @doc """
-  設定ファイルの読み込み及びバリデーションを行う。
+  returns `headers` for `HTTPoison`.
   """
-  @spec load() :: {:ok, t()} | {:error, term()}
-  def load() do
-    validate(load_without_validation())
-  end
-
-  @doc """
-  設定ファイルの読み込み及びバリデーションを行う。
-  エラーがあれば、例外を発生させる。
-  """
-  @spec load!() :: t()
-  def load!() do
-    case load() do
-      {:ok, config} ->
-        config
-      {:error, err} ->
-        raise err
-    end
-  end
-
-  @doc """
-  設定内容を表示する。
-  """
-  @spec show_status(t()) :: none()
-  def show_status(config) do
-    IO.puts "testcase:"
-    IO.puts "  aggregation: #{config[:testcase][:aggregation]}"
-    IO.puts "  directory:   #{config[:testcase][:directory]}"
-    IO.puts "  prefix:      #{config[:testcase][:prefix]}"
-    IO.puts "testcase:"
-    IO.write "  access_token: "
-    case validate(config, [:yukicoder, :access_token]) do
-      {:ok, _} ->
-        IO.puts "[" <> success("ok") <> "]"
-      {:error, _} ->
-        IO.puts "[" <> error("error") <> "]"
-    end
-  end
-
-  @doc """
-  `HTTPoison`で使う`headers`情報を返す。
-  """
-  @spec headers(t()) :: list()
+  @spec headers(t()) :: {:ok, list()} | {:error, term()}
   def headers(config) do
-    ["Authorization": "Bearer #{config[:yukicoder][:access_token]}", "Accept": "Application/json; Charset=utf-8"]
-  end
-
-  @doc """
-  `HTTPoison`で使う`options`情報を返す。
-  """
-  @spec options(t()) :: list()
-  def options(_config) do
-    [ssl: [{:versions, [:"tlsv1.2"]}], recv_timeout: 500]
-  end
-
-  @doc """
-  設定のバリデーションを行う。
-  """
-  @spec validate(map()) :: {:ok, map()} | {:error, term()}
-  def validate(config) do
-    validate(config, [:yukicoder, :access_token])
-  end
-
-  @spec validate(t(), list()) :: {:ok, t()} | {:error, term()} 
-  def validate(config, keys)
-  def validate(config, [:yukicoder, :access_token]) do
-    with yuki when is_map(yuki) <- config[:yukicoder],
-      token when not(token in ["", nil]) <- yuki[:access_token] do
-        {:ok, config}
+    if config.yukicoder.access_token in [nil, ""] do
+      {:error, %AccessTokenError{description: "empty access token"}}
     else
-      _ ->
-        {:error, %InvalidAccessTokenError{message: "access token is invalid"}}
+      {
+        :ok, [
+          "Authorization": "Bearer #{config.yukicoder.access_token}",
+          "Accept": "Application/json; Charset=utf-8"
+        ]
+      }
     end
   end
 
-  @spec get(t(), list(atom())) :: term()
-  def get(config, []), do: config
-  def get(config, [key | tail]), do: get(config[key], tail)
+  @spec headers!(t()) :: list()
+  def headers!(config) do
+    case headers(config) do
+      {:ok, headers} -> headers
+      {:error, err} -> raise err
+    end
+  end
+
+  @doc """
+  returns `options` for `HTTPoison`.
+  """
+  @spec options(t()) :: {:ok, list()} | {:error, term()}
+  def options(_config) do
+    {:ok, [ssl: [{:versions, [:"tlsv1.2"]}], recv_timeout: 500]}
+  end
+
+  @spec options!(t()) :: list()
+  def options!(config) do
+    case options(config) do
+      {:ok, opts} -> opts
+      {:error, err} -> raise err
+    end
+  end
+
+  @doc """
+  Merges two configurations.
+  Prioritizes to select a not `nil` value as well as possible.
+  """
+  def merge(%{} = c0, %{} = c1) do
+    Map.merge(c0, c1, fn
+      _key, v0, nil -> v0
+      _key, %{} = v0, %{} = v1 -> merge(v0, v1)
+      _key, _v0, v1 -> v1
+    end)
+  end
+
+  defimpl String.Chars do
+    def to_string(%Config{} = config) do
+      access_token = if config.yukicoder.access_token in [nil, ""] do
+        YukiHelper.error("error")
+      else
+        YukiHelper.success("ok")
+      end
+      """
+      testcase:
+        bundle: #{to_str(config.testcase.bundle)}
+        directory: #{to_str(config.testcase.directory)}
+        prefix: #{to_str(config.testcase.prefix)}
+      yukicoder:
+        access_token: [#{access_token}]
+      """
+    end
+
+    defp to_str(nil), do: "nil"
+    defp to_str(v), do: v
+  end
 end
