@@ -3,11 +3,21 @@ defmodule Mix.Tasks.Yuki.Testcase.Download do
   @moduledoc """
   Downloads a list of the specified problem.
 
-  If the specified file already exists, the download will be skipped.
+  From mix task:
 
       mix yuki.testcase.download NO [--problem-id]
 
-  `--problem-id` option specifies that `NO` is the problem ID, not the problem number.
+  From escript:
+
+      yuki testcase.download NO [--problem-id]
+
+  > Note: If the specified file already exists, the download will be skipped.
+
+  # Option
+
+  - `--problem-id`: if `true`, `NO` is the problem ID. If `false`, `NO` is the problem number.
+
+  # Directory Structure
 
   Name of the download directory varies in depending on your configuration file.
   There are two main patterns in configuration example.
@@ -34,18 +44,21 @@ defmodule Mix.Tasks.Yuki.Testcase.Download do
 
   """
   use Mix.Task
+  use YukiHelper.Docs
 
   import YukiHelper
-  alias YukiHelper.{Config, Problem}
+  
+  alias YukiHelper.{Config, Config.Testcase}
 
   @arguments [:integer]
   @switches [problem_id: :boolean, version: :boolean]
   @version Mix.Project.config()[:version]
   @name Mix.Project.config()[:name]
 
-  @requirements ["app.start"]
   @impl true
   def run(argv) do
+    {:ok, _} = Application.ensure_all_started(:yuki_helper)
+
     argv
     |> parse_options(@arguments, @switches)
     |> case do
@@ -59,7 +72,7 @@ defmodule Mix.Tasks.Yuki.Testcase.Download do
 
   defp download(no, opts) do
     config = Config.load_all()
-    problem_path = Path.expand(Problem.problem_root(config, no))
+    problem_path = Path.expand(Testcase.problem_path(config, no))
     paths = %{}
     |> Map.put(:in, Path.join(problem_path, "in"))
     |> Map.put(:out, Path.join(problem_path, "out"))

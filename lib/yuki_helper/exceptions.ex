@@ -2,29 +2,38 @@ defmodule YukiHelper.Exceptions do
   @moduledoc false
 
   defmodule AccessTokenError do
-    defexception [:description]
+    defexception [description: "empty access token"]
 
     @impl true
     def message(exception) do
-      "access token is invalid : #{exception.description}"
+      "invalid access token : #{exception.description}"
     end
   end
 
-  defmodule ConfigurationFileError do
-    defexception [:file, :description]
+  defmodule ConfigFileError do
+    defexception [:file, description: "config file not found"]
 
     @impl true
     def message(exception) do
-      "configure file #{exception.file} #{exception.description}"
+      "#{exception.file} : #{exception.description}"
     end
   end
 
-  defmodule BadTargetError do
-    defexception [:target, description: "target file is not found"]
+  defmodule SourceFileError do
+    defexception [:source, description: "source file is not found"]
 
     @impl true
     def message(exception) do
-      "target `#{exception.target}` : #{exception.description}"
+      "`#{exception.source}` : #{exception.description}"
+    end
+  end
+
+  defmodule LanguageError do
+    defexception [:language, description: "language is no not supported"]
+
+    @impl true
+    def message(exception) do
+      "`#{exception.language}` : #{exception.description}"
     end
   end
 
@@ -38,11 +47,11 @@ defmodule YukiHelper.Exceptions do
   end
 
   defmodule CompileError do
-    defexception [:target, description: "compile error has been occurred"]
+    defexception [:source, description: "compile error has been occurred"]
 
     @impl true
     def message(exception) do
-      "target: `#{exception.target}` : #{exception.description}"
+      "target: `#{exception.source}` : #{exception.description}"
     end
   end
 

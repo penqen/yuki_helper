@@ -2,7 +2,7 @@ defmodule YukiHelper.Download do
   @moduledoc """
   Provides a module related to downloading teastcases.
   """
-  alias YukiHelper.{Config, Problem, Api.Yukicoder}
+  alias YukiHelper.{Config, Config.Testcase, Api.Yukicoder}
   alias YukiHelper.Exceptions.DownloadError
 
   @type filetype() :: :in | :out
@@ -106,7 +106,7 @@ defmodule YukiHelper.Download do
   """
   @spec download_tastcases?(filename_list(), Config.t(), Problem.no()) :: boolean()
   def download_tastcases?(testcase_list, config, no) do
-    root = Path.expand(Problem.problem_root(config, no))
+    root = Path.expand(Testcase.problem_path(config, no))
 
     Enum.reduce(testcase_list, true, fn file, download? ->
       Enum.reduce([:in, :out], download?, fn filetype, download? ->

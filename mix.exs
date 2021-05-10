@@ -6,10 +6,11 @@ defmodule YukiHelper.MixProject do
   def project do
     [
       app: :yuki_helper,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.11.4",
       description: "helper for yukicoder",
       start_permanent: Mix.env() == :prod,
+      escript: escript(),
       deps: deps(),
       name: "YukiHelper",
       package: package(),
@@ -24,9 +25,21 @@ defmodule YukiHelper.MixProject do
   def application do
     [
       extra_applications: [
-        :logger,
-        :httpoison
-      ]
+        :httpoison,
+        :jason,
+        :yaml_elixir,
+        :mix
+      ],
+      mod: {YukiHelper, []}
+    ]
+  end
+
+  defp escript do
+    [
+      name: :yuki,
+      main_module: YukiHelper.CLI,
+      embed_elixir: true,
+      emu_args: "-noinput -elixir ansi_enabled true"
     ]
   end
 

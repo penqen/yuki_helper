@@ -5,11 +5,11 @@
 Current version supports `YukiCoder` and `Elixir`.
 
 Note that `YukiHelper` needs your access token to download testcases for any problem.
-Please set the access token into your configuration file described later.
+Please set the access token into your config file described later.
 
 ## Installation
 
-Add to your project dependencies in `mix.exs`
+Add to your project dependencies in `mix.exs`.
 
 ```elixir
 def deps do
@@ -23,15 +23,32 @@ end
 mix deps.get
 ```
 
+Or, globally install using escript.
+
+```sh
+mix escript.install hex yuki_helper
+```
+
+Export a path for executable escript.
+
+```sh
+export $PATH $PATH:path/to/escript
+```
+
 ## Usages
 
 Provides the following commands.
 
-> See detail usages using the help command such as `mix help yuki.test`
+> See detail usages using the help command `mix help COMMAND` or `yuki help COMMAND`.
+
+### From Mix Task
 
 ```sh
 # prints current configuration
 mix yuki.config
+
+# prints a list of supported language
+mix yuki.lang.list
 
 # prints a list of testcase for Problem No. 10
 mix yuki.testcase.list 10
@@ -47,10 +64,26 @@ mix yuki.testcase.download 10
 mix yuki.test 10
 ```
 
-## Configurations
+### From Escript
+
+The following commands are `escript` version of the above `mix task`.
+
+```sh
+# prints help for the following commands 
+yuki help COMMAND
+
+yuki config
+yuki lang.list
+yuki testcase.list 10
+yuki testcase.list 10 --problem-id
+yuki testcase.download 10
+yuki test 10
+```
+
+## Configuration
 
 `.yuki_helper.default.config.yml` is an example configuration.
-There are three pattern of locations of configuration file in the following.
+There are three pattern of locations of config file.
 
 1. `~/.yukihelper.config.yml`
 
@@ -60,26 +93,73 @@ There are three pattern of locations of configuration file in the following.
 
 Configurations are overridden in the order of the above, with the manner that any `nil` value is skipped or ignored in current version.
 
-Note that name of the configuration file depends on the directory.
+> Note: name of config file depends on location.
 
 ### Example Configuration
 
 `YukiHelper` needs your access token for `Yukicoder` to download any testcase.
-Please get your access token from `Yukicoder` homepage and set it in your configuration files.
+Please get your access token from `Yukicoder` homepage and set it in your config files.
 
 ```yaml
 # .yuki_helper.default.config.yml
+#
+# Configures about languages.
+#
+languages:
+  # Specifies default language using on testing.
+  # If `null`, default to `elixir`.
+  primary: null
+  #
+  # Configure each languages.
+  # `source_directory`: if `nil`, finds a source file from `./lib` and `./src`.
+  # `path`: is optional.
+  # `compiler_path`: set value if there is difference between `path` and `compiler_path`.
+  # `prefix`: is optional.
+  #
+  elixir:
+    # If `null`, finds a source file from `./lib` and `./src`.
+    # If found multiple find, selects first found file. 
+    source_directory: null
+    # If 'null', solves `elixir` automatically.
+    # Because of finding from export path, does not consider any version.
+    path: null
+    # If 'null', solves `elixirc` automatically.
+    # Because of finding from export path, does not consider any version.
+    compiler_path: null
+    # If 'null', in case problem number is 10, name of source file is `10.ex`.
+    # However, in Elixir, relates closely between file name and module name in point of naming rules.
+    # In the above, regards module name as `P10`.
+    # Strongly recommends to set `prefix` in Elixir.
+    prefix: "p"
+  c++11:
+    source_directory: null
+    path: null
+    compiler_path: null
+    prefix: null
+  ruby:
+    source_directory: null
+    path: null
+    compiler_path: null
+    prefix: null
+#
+# Configures about testcase to download.
+#
 testcase:
   # Positive integer value more than 10.
   # If `bundile` is 100, directory of testcase for problem 10 is `testcase/100/p10`.
   bundle: null
   # Root direcotry of testcases to download
   directory: "testcase"
-  # Prefix of testcase `testcase/p10` and source code `lib/p10.ex`
+  # Prefix of testcase `testcase/p10`
   prefix: "p"
-yukicoder:
-  # Access Token for Yukicoder. Be careful to treat.
-  access_token: "your access token"
+#
+# Configures about providers to need to login.
+# Supports for only YukiCoder in current version.
+#
+providers:
+  yukicoder:
+    # Access Token for Yukicoder. Be careful to treat.
+    access_token: "your access token"
 ```
 
 ### Directory Structure

@@ -1,23 +1,21 @@
-defmodule Mix.Tasks.Yuki.Config do
-  @shortdoc "Prints current configuration"
+defmodule Mix.Tasks.Yuki.Lang.List do
+  @shortdoc "Prints a list of supported language"
   @moduledoc """
-  Prints current configuration.
+  Prints a list of supported language.
 
   From mix task:
 
-      mix yuki.config
+      mix yuki.lang.list
 
   From escript:
 
-      yuki config
+      yuki lang.list
 
   """
   use Mix.Task
   use YukiHelper.Docs
 
   import YukiHelper, only: [parse_options: 3]
-
-  alias YukiHelper.Config
 
   @arguments []
   @switches [version: :boolean]
@@ -30,17 +28,17 @@ defmodule Mix.Tasks.Yuki.Config do
     |> parse_options(@arguments, @switches)
     |> case do
       :version -> Mix.shell().info("#{@name} v#{@version}")
-      {[], []} -> config()
+      {[], []} -> lang()
       {:invalid_option, msg} ->  Mix.raise(msg)
       {:invalid_arguments, msg} -> Mix.raise(msg)
     end
   end
 
-  defp config() do
-    Mix.shell().info("Current configuration\n")
-
-    Config.load_all()
-    |> to_string()
-    |> Mix.shell().info()
+  defp lang() do
+    Mix.shell.info("The available languages are:")
+    YukiHelper.Language.list()
+    |> Enum.map(&("  #{&1}"))
+    |> Enum.join("\n")
+    |> Mix.shell.info()
   end
 end

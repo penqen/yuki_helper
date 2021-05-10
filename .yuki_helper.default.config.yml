@@ -1,11 +1,58 @@
+#
+# Configures about languages.
+#
+languages:
+  # Specifies default language using on testing.
+  # If `null`, default to `elixir`.
+  primary: null
+  #
+  # Configure each languages.
+  # `source_directory`: if `nil`, finds a source file from `./lib` and `./src`.
+  # `path`: is optional.
+  # `compiler_path`: set value if there is difference between `path` and `compiler_path`.
+  # `prefix`: is optional.
+  #
+  elixir:
+    # If `null`, finds a source file from `./lib` and `./src`.
+    # If found multiple find, selects first found file. 
+    source_directory: null
+    # If 'null', solves `elixir` automatically.
+    # Because of finding from export path, does not consider any version.
+    path: null
+    # If 'null', solves `elixirc` automatically.
+    # Because of finding from export path, does not consider any version.
+    compiler_path: null
+    # If 'null', in case problem number is 10, name of source file is `10.ex`.
+    # However, in Elixir, relates closely between file name and module name in point of naming rules.
+    # In the above, regards module name as `P10`.
+    # Strongly recommends to set `prefix` in Elixir.
+    prefix: "p"
+  c++11:
+    source_directory: null
+    path: null
+    compiler_path: null
+    prefix: null
+  ruby:
+    source_directory: null
+    path: null
+    compiler_path: null
+    prefix: null
+#
+# Configures about testcase to download.
+#
 testcase:
   # Positive integer value more than 10.
   # If `bundile` is 100, directory of testcase for problem 10 is `testcase/100/p10`.
   bundle: null
   # Root direcotry of testcases to download
   directory: "testcase"
-  # Prefix of testcase `testcase/p10` and source code `lib/p10.ex`
+  # Prefix of testcase `testcase/p10`
   prefix: "p"
-yukicoder:
-  # Access Token for Yukicoder. Be careful to treat.
-  access_token: "your access token"
+#
+# Configures about providers to need to login.
+# Supports for only YukiCoder in current version.
+#
+providers:
+  yukicoder:
+    # Access Token for Yukicoder. Be careful to treat.
+    access_token: "your access token"

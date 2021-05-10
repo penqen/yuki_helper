@@ -7,7 +7,7 @@ defmodule YukiHelper.Config.Provider do
   @spec new() :: t()
   def new(), do: %__MODULE__{}
 
-  @spec new(map() | nil) :: t()
+  @spec new(map() | any()) :: t()
   def new(%{"access_token" => ""}), do: %__MODULE__{}
   def new(%{"access_token" => token}) when is_binary(token),
     do: %__MODULE__{access_token: token}

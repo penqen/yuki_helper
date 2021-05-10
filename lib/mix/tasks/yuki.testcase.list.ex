@@ -3,11 +3,21 @@ defmodule Mix.Tasks.Yuki.Testcase.List do
   @moduledoc """
   Prints a list of testcases for the specified problem.
 
+  From mix task:
+
       mix yuki.testcase.list NO [--problem-id]
 
-  `--problem-id` option specifies that `NO` is the problem ID, not the problem number.
+  From escript:
+
+      yuki testcase.list NO [--problem-id]
+
+  # Option
+
+  - `--problem-id`: if `true`, `NO` is the problem ID. If `false`, `NO` is the problem number.
+  
   """
   use Mix.Task
+  use YukiHelper.Docs
 
   import YukiHelper, only: [parse_options: 3]
 
@@ -18,9 +28,10 @@ defmodule Mix.Tasks.Yuki.Testcase.List do
   @version Mix.Project.config()[:version]
   @name Mix.Project.config()[:name]
 
-  @requirements ["app.start"]
   @impl true
   def run(argv) do
+    {:ok, _} = Application.ensure_all_started(:yuki_helper)
+
     argv
     |> parse_options(@arguments, @switches)
     |> case do

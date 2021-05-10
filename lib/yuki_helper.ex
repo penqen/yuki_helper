@@ -8,6 +8,13 @@ defmodule YukiHelper do
   @type arguments() :: list(:integer | :string)
   @type options() :: {keyword(), list()} | []
   @type invalid_options() :: {invalid_type, message()}
+
+  use Application
+
+  def start(_type, _args) do
+    children = []
+    Supervisor.start_link(children, strategy: :one_for_one)
+  end
   
   def success(str), do: IO.ANSI.green() <> str <> IO.ANSI.reset()
   def warning(str), do: IO.ANSI.yellow() <> str <> IO.ANSI.reset()
