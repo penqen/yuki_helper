@@ -178,14 +178,14 @@ defmodule YukiHelper.ConfigTest do
     end
   end
 
-  describe "get_target_files/1" do
+  describe "config_files/1" do
     test "expects a list of configure file existed" do
-      assert is_list(Config.get_target_files()) == true
+      assert is_list(Config.config_files()) == true
     end
   end
 
   describe "load/1" do
-    test "configuration file is not found" do
+    test "config file is not found" do
       {status, error} = Config.load(".yuki_helper.not_found.config.yml")
       assert status == :error
       assert error == %ConfigFileError{
@@ -194,7 +194,7 @@ defmodule YukiHelper.ConfigTest do
       }
     end
 
-    test "wrong format configuration file is ignored" do
+    test "wrong format config file is ignored" do
       {status, config} =  Config.load("mix.exs")
       assert status == :ok
       assert config == Config.new()

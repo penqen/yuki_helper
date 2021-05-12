@@ -5,11 +5,11 @@ defmodule Mix.Tasks.Yuki.Test do
 
   From mix task:
 
-      mix yuki.test NO [--problem-id] [--lang LANG] [--source SOURCE] [--timeout TIMEOUT] [--module MODULE]
+      mix yuki.test NO [--problem-id] [--lang LANG] [--source SOURCE] [--time-limit TIME_LIMIT] [--module MODULE]
 
   From escript:
 
-      yuki test NO [--problem-id] [--lang LANG] [--source SOURCE] [--timeout TIMEOUT] [--module MODULE]
+      yuki test NO [--problem-id] [--lang LANG] [--source SOURCE] [--time-limit TIME_LIMIT] [--module MODULE]
 
   In order to test your source code, solves a path of the source code.
   If there is prefix configuration, decides its filename consisting prefix, problem number, and, extention.
@@ -30,8 +30,8 @@ defmodule Mix.Tasks.Yuki.Test do
   - `--source`: this option specifies a  path of source code
   if source code is out of scope for auto search on `src` or `lib`.
 
-  - `--timeout`: this option redefine `timeout`.
-  Varies `timeout` depending on each problem.
+  - `--time-limit`: this option redefine `TIME_LIMIT`.
+  Default to 5000 ms.
 
   - `--module` : this option is only valid for `elixir` and specifies custom entry point `MODULE.main` on executing.
 
@@ -50,7 +50,7 @@ defmodule Mix.Tasks.Yuki.Test do
     version: :boolean,
     source: :string,
     lang: :atom,
-    timeout: :integer
+    time_limit: :integer
   ]
   @version Mix.Project.config()[:version]
   @name Mix.Project.config()[:name]
@@ -140,7 +140,7 @@ defmodule Mix.Tasks.Yuki.Test do
           :runtime_error ->
             Mix.shell().info("  #{testcase} : [#{warning("RE")}]")
             next && false
-          :timeout ->
+          :time_limit ->
             Mix.shell().info("  #{testcase} : [#{warning("TLE")}]")
             next
           {:wrong_answer, time} ->

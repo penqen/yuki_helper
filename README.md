@@ -1,8 +1,15 @@
 # YukiHelper
 
-`YukiHelper` provides helpers to download testcases and to compile the source code in order to help test (judge) your souce code (e.g. ac, wa, re) in your local environment.
+`YukiHelper` provides helpers to download testcases and to compile the source code in order to help to test (judge) your souce code (e.g. ac, wa, re) in your local environment.
 
-Current version supports `YukiCoder` and `Elixir`.
+Current version supports for the following:
+
+- languages
+  - C++11
+  - Elixir
+  - Ruby
+- providers
+  - YukiCoder
 
 Note that `YukiHelper` needs your access token to download testcases for any problem.
 Please set the access token into your config file described later.
@@ -14,7 +21,7 @@ Add to your project dependencies in `mix.exs`.
 ```elixir
 def deps do
   [
-    {:yuki_helper, "~> 0.1.0"},
+    {:yuki_helper, "~> 0.2.0"},
   ]
 end
 ```
@@ -27,19 +34,43 @@ Or, globally install using escript.
 
 ```sh
 mix escript.install hex yuki_helper
+
+...
+
+* creating path/to/.mix/escripts/yuki
 ```
 
 Export a path for executable escript.
 
 ```sh
-export $PATH $PATH:path/to/escript
+# bash
+export $PATH=$PATH:path/to/.mix/escripts/yuki
+
+# fish
+set -x PATH path/to/.mix/escripts/yuki $PATH
 ```
+
+## Features
+
+- [x] to dwonload testcases for any problem
+- [ ] additional options for `mix yuki.test`
+  - [ ] to specify module name
+  - [ ] `timelimit` option
+  - [ ] `force` option
+- [ ] to juadge testcase
+  - [x] CE
+  - [x] AC/WA/RE
+  - [ ] TLE
+  - [ ] MLE
+- [ ] to support for handling unexpected error (e.g. communication)
+- [ ] to support for other languages
+- [ ] to support for other provider (except YukiCoder) if necessary
 
 ## Usages
 
-Provides the following commands.
+Provides two types of commands, `mix tasks` and `escript`.
 
-> See detail usages using the help command `mix help COMMAND` or `yuki help COMMAND`.
+> See detail usages using the help command.
 
 ### From Mix Task
 
@@ -82,21 +113,22 @@ yuki test 10
 
 ## Configuration
 
-`.yuki_helper.default.config.yml` is an example configuration.
 There are three pattern of locations of config file.
 
-1. `~/.yukihelper.config.yml`
+1. `~/.yuki_helper.config.yml`
 
-2. `~/.config/yukihelper/.config.yml`
+2. `~/.config/yuki_helper/.config.yml`
 
 3. `./.yuki_helper.config.yml`
 
-Configurations are overridden in the order of the above, with the manner that any `nil` value is skipped or ignored in current version.
+Configurations are overridden in the order of the above.
+If there is any `nil` value, it is skipped or ignored.
 
 > Note: name of config file depends on location.
 
 ### Example Configuration
 
+There is an example configration `.yuki_helper.default.config.yml`.
 `YukiHelper` needs your access token for `Yukicoder` to download any testcase.
 Please get your access token from `Yukicoder` homepage and set it in your config files.
 
@@ -148,7 +180,7 @@ testcase:
   # Positive integer value more than 10.
   # If `bundile` is 100, directory of testcase for problem 10 is `testcase/100/p10`.
   bundle: null
-  # Root direcotry of testcases to download
+  # Root direcotry for testcases to download
   directory: "testcase"
   # Prefix of testcase `testcase/p10`
   prefix: "p"
@@ -162,12 +194,16 @@ providers:
     access_token: "your access token"
 ```
 
-### Directory Structure
+### Download Directory for Testcases
 
-- Initial Configuration
+You can change download directory for testcases by `testcase` section in config file.
+
+Two types of example are following:
+
+- Simple Structure
 
 ```yml
-# .yuki_helper.config.yml
+# ~/.yuki_helper.config.yml
 testcase:
   bundle: null
   directory: "testcase"
@@ -175,9 +211,7 @@ testcase:
 ```
 
 ```console
-├── lib
-│   ├── 10.ex
-│   └── 11.ex
+# preview
 └── testcase
     ├── 10
     │   ├── in
@@ -185,10 +219,10 @@ testcase:
     └── 11
 ```
 
-- Custum Configuration
+- Nested Structure
 
 ```yml
-# .yuki_helper.config.yml
+# ~/.yuki_helper.config.yml
 testcase:
   bundle: 100
   directory: "test-case"
@@ -196,11 +230,7 @@ testcase:
 ```
 
 ```console
-├── lib
-│   ├─── 100
-│   │    ├── p10.ex
-│   │    └── p11.ex
-│   └── p12.ex
+# preview
 └── test-case
     ├─── 100
     │   ├── p10
@@ -209,19 +239,3 @@ testcase:
     │   └── p11
     └── 200
 ```
-
-## Features
-
-- [x] to dwonload testcases for any problem
-- [ ] additional options for `mix yuki.test`
-  - [ ] to specify module name
-  - [ ] `timeout` option
-  - [ ] `force` option
-- [ ] to juadge testcase
-  - [x] CE
-  - [x] AC/WA/RE
-  - [ ] TLE
-  - [ ] MLE
-- [ ] to support for handling unexpected error (e.g. communication)
-- [ ] to support for other languages
-- [ ] to support for other provider (except YukiCoder) if necessary

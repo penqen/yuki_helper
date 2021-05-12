@@ -1,5 +1,5 @@
 defmodule Mix.Tasks.Yuki.Testcase.List do
-  @shortdoc "Shows a list of testcases"
+  @shortdoc "Prints a list of testcases"
   @moduledoc """
   Prints a list of testcases for the specified problem.
 

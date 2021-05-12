@@ -27,7 +27,14 @@ defmodule YukiHelper.CLI do
     "testcase.download"
   ]
 
+  @version Mix.Project.config()[:version]
+  @name Mix.Project.config()[:name]
+
   def main([]), do: main(["help"])
+
+  def main(["--version"]) do
+    IO.puts("#{@name} v#{@version}")
+  end
 
   def main(["help" = command]) do
     opts = Application.get_env(:mix, :colors)

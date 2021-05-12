@@ -13,7 +13,7 @@ defmodule YukiHelper.Language do
   @type time :: non_neg_integer()
   @type expect :: String.t()
   @type result :: String.t()
-  @type status :: :timeout | :wrong_answer | :runtime_error | :accept
+  @type status :: :time_limit | :wrong_answer | :runtime_error | :accept
 
   alias YukiHelper.Config
   alias YukiHelper.Exceptions.{LanguageError, CompileError}
@@ -101,17 +101,17 @@ defmodule YukiHelper.Language do
       module.handle?(config, opts)
     end)
     |> (fn module ->
-      timeout = Keyword.get(opts, :timeout) || 5_000
+      time_limit = Keyword.get(opts, :time_limit) || 5_000
 
       task = Task.async(fn ->
         module.run(config, no, source, input_file, opts)
       end)
 
-      case Task.yield(task, timeout) || Task.shutdown(task) do
+      case Task.yield(task, time_limit) || Task.shutdown(task) do
         {:ok, result} ->
           result
         nil ->
-          :timeout
+          :time_limit
       end
     end).()
     |> (fn 
@@ -121,8 +121,8 @@ defmodule YukiHelper.Language do
         {:wrong_answer, time / 1_000}
       {time, {ans, 0}} when ans == output ->
         {:accept, time / 1_000}
-      timeout ->
-        timeout
+      time_limit ->
+        time_limit
     end).()
   end
 

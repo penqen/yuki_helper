@@ -1,7 +1,7 @@
 defmodule YukiHelper.Config.Providers do
   @moduledoc false
 
-  alias YukiHelper.{Config, Config.Provider}
+  alias YukiHelper.Config.Provider
 
   defstruct yukicoder: %Provider{}
 

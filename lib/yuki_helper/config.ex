@@ -1,8 +1,8 @@
 defmodule YukiHelper.Config do
   @moduledoc """
-  Loads configuration files.
+  Loads config files.
 
-  Loading configuration files are the following:
+  Loading config files are the following:
 
   1. `~/.yukihelper.config.yml`
   2. `~/.config/yukihelper/.config.yml`
@@ -114,10 +114,10 @@ defmodule YukiHelper.Config do
   def new(_), do: new()
 
   @doc """
-  Returns files to load.
+  Returns cofing files to load.
   """
-  @spec get_target_files() :: list(Path.t())
-  def get_target_files() do
+  @spec config_files() :: list(Path.t())
+  def config_files() do
     [
       Path.expand("~/.yuki_helper.config.{yml,yaml}"),
       Path.expand("~/.config/yuki_helper/.config.{yml,yaml}"),
@@ -128,7 +128,7 @@ defmodule YukiHelper.Config do
   end
 
   @doc """
-  Loads a configuration file.
+  Loads a config file.
   """
   @spec load(Path.t()) :: {:ok, Config.t()} | {:error, term()}
   def load(path) do
@@ -138,7 +138,7 @@ defmodule YukiHelper.Config do
           {:ok, Config.new(yaml)}
         {:error, err = %YamlElixir.ParsingError{}} ->
           [
-            "[warning]: configuration file is invalid",
+            "[warning]: config file is invalid",
             "  #{YamlElixir.ParsingError.message(err)}",
             "  in #{path}"
           ]
@@ -155,11 +155,11 @@ defmodule YukiHelper.Config do
   end
 
   @doc """
-  Loads all configuration files with ignoring any error. 
+  Loads all config files with ignoring any error. 
   """
   @spec load_all() :: Config.t()
   def load_all() do
-    Enum.reduce(get_target_files(), new(), fn path, config ->
+    Enum.reduce(config_files(), new(), fn path, config ->
       case load(path) do
         {:ok, next} ->
           merge(config, next)

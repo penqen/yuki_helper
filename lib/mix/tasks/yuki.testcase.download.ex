@@ -19,7 +19,7 @@ defmodule Mix.Tasks.Yuki.Testcase.Download do
 
   # Directory Structure
 
-  Name of the download directory varies in depending on your configuration file.
+  Name of the download directory varies in depending on your config file.
   There are two main patterns in configuration example.
 
   Example 1: `prefix` option is `p`
