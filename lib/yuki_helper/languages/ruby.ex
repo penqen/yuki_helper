@@ -11,7 +11,7 @@ defmodule YukiHelper.Languages.Ruby do
   def ext(), do: "rb"
 
   def handle?(config, opts) do
-    :ruby == Language.get(config, opts)
+    __MODULE__ == Language.get(config, opts)
   end
 
   def compiler(config, _opts) do

@@ -67,21 +67,20 @@ defmodule YukiHelper.Language do
   """
   @spec verify(Config.t(), keyword()) :: {:ok, language, compiler} | {:error, term()}
   def verify(config, opts) do
-    @languages
-    |> Enum.find(fn module ->
-      module.handle?(config, opts)
-    end)
-    |> (fn 
-      nil ->
-        {:error, %LanguageError{language: get(config, opts)}} 
-      module ->
+    module = get(config, opts)
+
+    with lang when is_binary(lang) <- Keyword.get(opts, :lang),
+      nil <- find_module(lang) do
+      {:error, %LanguageError{language: lang}} 
+    else
+      _ ->
         case module.compiler(config, opts) do
           {:ok, compiler_path} ->
             {:ok, module.me(), compiler_path}
           {_, _} = err ->
             err
         end
-    end).()
+    end
   end
 
   @spec verify!(Config.t(), keyword()) :: {language, compiler}
@@ -96,14 +95,7 @@ defmodule YukiHelper.Language do
 
   @spec compile(Config.t(), source(), opts()) :: {:ok, String.t()} | {:error, term()}
   def compile(config, source, opts) do
-    @languages
-    |> Enum.find(fn module ->
-      module.handle?(config, opts)
-    end)
-    |> (fn module ->
-      module.compile(config, source, opts)
-    end).()
-    |> case do
+    case get(config, opts).compile(config, source, opts) do
       {msg, 0} ->
         {:ok, msg}
       {_msg, 1} ->
@@ -117,10 +109,7 @@ defmodule YukiHelper.Language do
     input_file = "#{root}/in/#{testcase}"
     {output, 0} = System.cmd("cat", ["#{root}/out/#{testcase}"])
 
-    @languages
-    |> Enum.find(fn module ->
-      module.handle?(config, opts)
-    end)
+    get(config, opts)
     |> (fn module ->
       time_limit = Keyword.get(opts, :time_limit) || 5_000
 
@@ -149,12 +138,6 @@ defmodule YukiHelper.Language do
 
   @spec clean_up(Config.t(), opts()) :: :ok | :error
   def clean_up(config, opts) do
-    @languages
-    |> Enum.find(fn module ->
-      module.handle?(config, opts)
-    end)
-    |> (fn module ->
-      module.clean_up()
-    end).()
+    get(config, opts).clean_up()
   end
 end

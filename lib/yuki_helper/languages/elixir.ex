@@ -16,7 +16,7 @@ defmodule YukiHelper.Languages.Elixir do
   def ext(), do: "ex"
 
   def handle?(config, opts) do
-    :elixir == Language.get(config, opts)
+    __MODULE__ == Language.get(config, opts)
   end
 
   def compiler(config, _opts) do

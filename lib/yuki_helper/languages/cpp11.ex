@@ -11,7 +11,7 @@ defmodule YukiHelper.Languages.Cpp11 do
   def ext(), do: "cpp"
 
   def handle?(config, opts) do
-    :"c++11" == Language.get(config, opts)
+    __MODULE__ == Language.get(config, opts).me()
   end
 
   def compiler(config, _opts) do
