@@ -1,7 +1,7 @@
 defmodule YukiHelper.Languages.Cpp11 do
   @moduledoc false
 
-  alias YukiHelper.Config
+  alias YukiHelper.Language
   alias YukiHelper.Exceptions.CompilerError
 
   @behaviour YukiHelper.Language
@@ -11,7 +11,7 @@ defmodule YukiHelper.Languages.Cpp11 do
   def ext(), do: "cpp"
 
   def handle?(config, opts) do
-    :"c++11" == Config.Languages.get(config, opts)
+    :"c++11" == Language.get(config, opts)
   end
 
   def compiler(config, _opts) do

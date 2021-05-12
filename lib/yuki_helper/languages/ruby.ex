@@ -1,7 +1,7 @@
 defmodule YukiHelper.Languages.Ruby do
   @moduledoc false
 
-  alias YukiHelper.Config
+  alias YukiHelper.Language
   alias YukiHelper.Exceptions.CompilerError
 
   @behaviour YukiHelper.Language
@@ -11,7 +11,7 @@ defmodule YukiHelper.Languages.Ruby do
   def ext(), do: "rb"
 
   def handle?(config, opts) do
-    :ruby == Config.Languages.get(config, opts)
+    :ruby == Language.get(config, opts)
   end
 
   def compiler(config, _opts) do

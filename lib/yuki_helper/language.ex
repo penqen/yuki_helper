@@ -1,5 +1,6 @@
 defmodule YukiHelper.Language do
-  @moduledoc false
+  @moduledoc """
+  """
 
   @type testcase :: String.t()
   @type language :: atom()
@@ -33,13 +34,33 @@ defmodule YukiHelper.Language do
     YukiHelper.Languages.Ruby
   ]
 
-  def list do
-    Enum.map(@languages, fn module ->
-      module.me()
-    end)
+  @doc """
+  Returns a list of language module
+  """
+  def languages(), do: @languages()
+
+  @doc """
+  Returns currnet language module
+  """
+  def get(config, opts) do
+    with lang when is_binary(lang) <- Keyword.get(opts, :lang),
+      mod when not is_nil(mod) <- find_module(lang) do
+      mod
+    else
+      _ -> primary(config)
+    end
   end
 
-  def languages(), do: @languages()
+  @doc """
+  Returns primary language module
+  """
+  def primary(config) do
+    find_module(config.languages.primary)
+  end
+
+  defp find_module(lang) do
+    Enum.find(languages(), &("#{&1.me()}" == lang))
+  end
 
   @doc """
   Verifies that the language is supported and its executable compiler exists.
@@ -52,7 +73,7 @@ defmodule YukiHelper.Language do
     end)
     |> (fn 
       nil ->
-        {:error, %LanguageError{language: Config.Languages.get(config, opts)}} 
+        {:error, %LanguageError{language: get(config, opts)}} 
       module ->
         case module.compiler(config, opts) do
           {:ok, compiler_path} ->

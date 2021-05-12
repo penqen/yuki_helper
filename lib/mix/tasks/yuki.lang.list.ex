@@ -36,7 +36,8 @@ defmodule Mix.Tasks.Yuki.Lang.List do
 
   defp lang() do
     Mix.shell.info("The available languages are:")
-    YukiHelper.Language.list()
+    YukiHelper.Language.languages()
+    |> Enum.map(&(&1.me()))
     |> Enum.map(&("  #{&1}"))
     |> Enum.join("\n")
     |> Mix.shell.info()

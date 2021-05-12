@@ -1,7 +1,7 @@
 defmodule YukiHelper.Languages.Elixir do
   @moduledoc false
 
-  alias YukiHelper.Config
+  alias YukiHelper.{Config, Language}
   alias YukiHelper.Exceptions.CompilerError
 
   @behaviour YukiHelper.Language
@@ -16,7 +16,7 @@ defmodule YukiHelper.Languages.Elixir do
   def ext(), do: "ex"
 
   def handle?(config, opts) do
-    :elixir == Config.Languages.get(config, opts)
+    :elixir == Language.get(config, opts)
   end
 
   def compiler(config, _opts) do

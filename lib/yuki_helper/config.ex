@@ -1,6 +1,6 @@
 defmodule YukiHelper.Config do
   @moduledoc """
-  Loads config files.
+  Provides module related to config files.
 
   Loading config files are the following:
 
@@ -248,7 +248,7 @@ defmodule YukiHelper.Config do
 
   defp find_source_file(config, no, opts) do
     prefix = prefix(config)
-    ext = Languages.extension(config, opts)
+    ext = YukiHelper.Language.get(config, opts).ext()
 
     case Path.wildcard("{lib,src}/**/#{prefix}#{no}.#{ext}") do
       [] ->
