@@ -44,10 +44,10 @@ Export a path for executable escript.
 
 ```sh
 # bash
-export $PATH=$PATH:path/to/.mix/escripts/yuki
+export $PATH=$PATH:path/to/.mix/escripts
 
 # fish
-set -x PATH path/to/.mix/escripts/yuki $PATH
+set -x PATH path/to/.mix/escripts $PATH
 ```
 
 ## Features
