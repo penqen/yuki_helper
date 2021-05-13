@@ -14,10 +14,10 @@ defmodule Mix.Tasks.Yuki.Test do
   In order to test your source code, solves a path of the source code.
   If there is prefix configuration, decides its filename consisting prefix, problem number, and, extention.
   For example, if prefix, problem number, and, language is `p`, `10`, and, `elixir`,
-  respectively, the file name is `p10.ex`.
+  respectively, the filename is `p10.ex`.
   Finds its file from directories `src` and `lib` recursively.
 
-  > Note: If there do not exist testcases for the problem, first, downloads its testcases.
+  > Note: If there is not any testcase for the problem, first, downloads its testcases.
 
   ## Options
 
@@ -30,7 +30,7 @@ defmodule Mix.Tasks.Yuki.Test do
   - `--source`: this option specifies a  path of source code
   if source code is out of scope for auto search on `src` or `lib`.
 
-  - `--time-limit`: this option redefine `TIME_LIMIT`.
+  - `--time-limit`: this option redefines `TIME_LIMIT`.
   Default to 5000 ms.
 
   - `--module` : this option is only valid for `elixir` and specifies custom entry point `MODULE.main` on executing.
@@ -41,7 +41,12 @@ defmodule Mix.Tasks.Yuki.Test do
 
   import YukiHelper
 
-  alias YukiHelper.{Config, Config.Testcase, Download, Language}
+  alias YukiHelper.{
+    Config,
+    Download,
+    Problem,
+    Language
+  }
   alias YukiHelper.Exceptions.CompileError
 
   @arguments [:integer]
@@ -77,7 +82,7 @@ defmodule Mix.Tasks.Yuki.Test do
     Mix.shell().info("Language : #{language}")
     Mix.shell().info("Compiler : #{compiler}")
 
-    src = Config.source_file!(config, no, opts)
+    src = Problem.source_file!(config, no, opts)
     Mix.shell().info("Source   : #{src}\n")
 
     testcase_list = Download.get_testcases!(config, no, opts)
@@ -87,7 +92,7 @@ defmodule Mix.Tasks.Yuki.Test do
     |> if do
       Mix.shell().info("download testcases : [skipped]")
     else
-      problem_path = Path.expand(Testcase.problem_path(config, no))
+      problem_path = Path.expand(Problem.problem_path(config, no))
 
       paths =
         %{}

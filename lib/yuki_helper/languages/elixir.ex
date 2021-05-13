@@ -1,13 +1,13 @@
 defmodule YukiHelper.Languages.Elixir do
   @moduledoc false
 
-  alias YukiHelper.{Config, Language}
+  alias YukiHelper.{Problem, Language}
   alias YukiHelper.Exceptions.CompilerError
 
   @behaviour YukiHelper.Language
 
   def module_name(config, no, opts) do
-    name = Keyword.get(opts, :module) || Config.Testcase.problem_directory(config, no)
+    name = Keyword.get(opts, :module) || Problem.problem_directory(config, no)
     String.capitalize(name)
   end
 

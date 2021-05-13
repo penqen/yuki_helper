@@ -19,7 +19,7 @@ defmodule Mix.Tasks.Yuki.Testcase.Download do
 
   # Directory Structure
 
-  Name of the download directory varies in depending on your config file.
+  The download directory varies in depending on your config file.
   There are two main patterns in configuration example.
 
   Example 1: `prefix` option is `p`
@@ -48,7 +48,7 @@ defmodule Mix.Tasks.Yuki.Testcase.Download do
 
   import YukiHelper
   
-  alias YukiHelper.{Config, Config.Testcase}
+  alias YukiHelper.{Config, Problem}
 
   @arguments [:integer]
   @switches [problem_id: :boolean, version: :boolean]
@@ -72,7 +72,7 @@ defmodule Mix.Tasks.Yuki.Testcase.Download do
 
   defp download(no, opts) do
     config = Config.load_all()
-    problem_path = Path.expand(Testcase.problem_path(config, no))
+    problem_path = Path.expand(Problem.problem_path(config, no))
     paths = %{}
     |> Map.put(:in, Path.join(problem_path, "in"))
     |> Map.put(:out, Path.join(problem_path, "out"))

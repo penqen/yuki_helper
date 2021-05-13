@@ -28,41 +28,4 @@ defmodule YukiHelper.Config.Testcase do
   end
 
   def new(_), do: new()
-
-  @spec problem_path(Config.t(), Config.no()) :: Path.t()
-  def problem_path(config, no) do
-    [
-      testcase_directory(config),
-      bundle_directory(config, no),
-      problem_directory(config, no)
-    ]
-    |> Enum.reject(&(&1 == ""))
-    |> Enum.join("/")
-  end
-
-  @spec testcase_directory(Config.t()) :: Path.t()
-  def testcase_directory(config) do
-    config.testcase.directory
-  end
-
-  @spec bundle_directory(Config.t(), Config.no()) :: Path.t()
-  def bundle_directory(config, no) do
-    case config.testcase.bundle do
-      nil -> ""
-      bundle -> "#{find_bundle(bundle, no, 1)}"
-    end
-  end
-
-  defp find_bundle(bundle, no, times) when bundle * times < no,
-    do: find_bundle(bundle, no, times + 1)
-  defp find_bundle(bundle, no, times) when no <= bundle * times,
-    do: bundle * times
-
-  @spec problem_directory(Config.t(), Config.no()) :: Path.t()
-  def problem_directory(config, no) do
-    case config.testcase.prefix do
-      nil -> "#{no}"
-      prefix -> "#{prefix}#{no}"
-    end
-  end
 end

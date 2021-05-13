@@ -3,16 +3,31 @@ defmodule YukiHelper.Download do
   Provides a module related to downloading teastcases.
   """
   
-  alias YukiHelper.{Config, Config.Testcase, Api.Yukicoder}
+  alias YukiHelper.{Config, Problem, Api.Yukicoder}
   alias YukiHelper.Exceptions.DownloadError
 
+  @typedoc """
+  Two types of testcase file, input file and output file.
+  """
   @type filetype() :: :in | :out
+
+  @typedoc """
+  Filename of the testcase.
+  """
   @type filename() :: String.t()
-  @type filename_list() :: list(filename())
+
+  @typedoc """
+  A list of filename of the testcase.
+  """
+  @type filename_list() :: [filename()]
+
+  @typedoc """
+  Data of the response body.
+  """
   @type data() :: String.t()
 
   @doc """
-  gets a list of testcase for the specified problem.
+  Gets a list of testcase for the specified problem.
   """
   @spec get_testcases(Config.t(), Problem.no(), keyword()) :: {:ok, filename_list()} | {:error, term()}
   def get_testcases(config, no, opts \\ []) do
@@ -57,7 +72,7 @@ defmodule YukiHelper.Download do
   end
 
   @doc """
-  downloads the specified testcase for the problem.
+  Downloads the specified testcase for the problem.
   """
   @spec get_testcase(Config.t(), Problem.no(), filename(), filetype(), keyword()) :: {:ok, data()} | {:error, term()}
   def get_testcase(config, no, filename, type, opts \\ []) do
@@ -107,7 +122,7 @@ defmodule YukiHelper.Download do
   """
   @spec download_tastcases?(filename_list(), Config.t(), Problem.no()) :: boolean()
   def download_tastcases?(testcase_list, config, no) do
-    root = Path.expand(Testcase.problem_path(config, no))
+    root = Path.expand(Problem.problem_path(config, no))
 
     Enum.reduce(testcase_list, true, fn file, download? ->
       Enum.reduce([:in, :out], download?, fn filetype, download? ->

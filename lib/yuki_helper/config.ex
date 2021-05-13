@@ -1,6 +1,6 @@
 defmodule YukiHelper.Config do
   @moduledoc """
-  Provides module related to config files.
+  Provides the module and struct related to config files.
 
   Loading config files are the following:
 
@@ -77,37 +77,30 @@ defmodule YukiHelper.Config do
 
   alias YamlElixir, as: Yaml
   alias YukiHelper.Config
-  alias YukiHelper.Config.{
-    Languages,
-    Providers,
-    Testcase
-  }
   alias YukiHelper.Exceptions.{
     AccessTokenError,
-    ConfigFileError,
-    SourceFileError
+    ConfigFileError
   }
 
-  defstruct languages: %Languages{},
-    testcase: %Testcase{},
-    providers: %Providers{}
+  defstruct languages: %Config.Languages{},
+    testcase: %Config.Testcase{},
+    providers: %Config.Providers{}
 
   @type t() :: %__MODULE__{}
-  @type no() :: pos_integer()
 
   @spec new() :: t()
   def new(), do: %__MODULE__{
-    languages: Languages.new(),
-    testcase: Testcase.new(),
-    providers: Providers.new()
+    languages: Config.Languages.new(),
+    testcase: Config.Testcase.new(),
+    providers: Config.Providers.new()
   }
 
   @spec new(map() | any()) :: t()
   def new(%{} = config) do
     %__MODULE__{
-      languages: config |> Map.get("languages") |> Languages.new(),
-      testcase: config |> Map.get("testcase") |> Testcase.new(),
-      providers: config |> Map.get("providers") |> Providers.new()
+      languages: config |> Map.get("languages") |> Config.Languages.new(),
+      testcase: config |> Map.get("testcase") |> Config.Testcase.new(),
+      providers: config |> Map.get("providers") |> Config.Providers.new()
     }
   end
 
@@ -170,7 +163,7 @@ defmodule YukiHelper.Config do
   end
 
   @doc """
-  returns `headers` for `HTTPoison`.
+  Returns `headers` for `HTTPoison`.
   """
   @spec headers(t()) :: {:ok, list()} | {:error, term()}
   def headers(config) do
@@ -197,7 +190,7 @@ defmodule YukiHelper.Config do
   end
 
   @doc """
-  returns `options` for `HTTPoison`.
+  Returns `options` for `HTTPoison`.
   """
   @spec options(t()) :: {:ok, list()} | {:error, term()}
   def options(_config) do
@@ -209,59 +202,6 @@ defmodule YukiHelper.Config do
     case options(config) do
       {:ok, opts} -> opts
       {:error, err} -> raise err
-    end
-  end
-
-  @doc """
-  returns the path of source file.
-  """
-  @spec source_file(Config.t(), no(), keyword()) :: {:ok, Path.t()} | {:error, term()}
-  def source_file(config, no, opts) do
-    with nil <- Keyword.get(opts, :source),
-      source <- find_source_file(config, no, opts) do
-        source
-    else
-      path when is_binary(path) ->
-        if File.exists?(path) do
-          {:ok, path}
-        else
-          {:error, path}
-        end
-    end
-    |> case do
-      {:ok, path} ->
-        {:ok, path}
-      {:error, path} ->
-        {:error, %SourceFileError{source: path}}
-    end
-  end
-
-  @spec source_file(Config.t(), no(), keyword()) :: Path.t()
-  def source_file!(config, no, opts) do
-    case source_file(config, no, opts) do
-      {:ok, path} ->
-        path
-      {:error, err} ->
-        raise err
-    end
-  end
-
-  defp find_source_file(config, no, opts) do
-    prefix = prefix(config)
-    ext = YukiHelper.Language.get(config, opts).ext()
-
-    case Path.wildcard("{lib,src}/**/#{prefix}#{no}.#{ext}") do
-      [] ->
-        {:error, "#{prefix}#{no}.#{ext}"}
-      [file | _] ->
-        {:ok, file}
-    end
-  end
-
-  defp prefix(config) do
-    case config.testcase.prefix do
-      nil -> ""
-      p -> p
     end
   end
 

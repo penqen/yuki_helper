@@ -3,22 +3,56 @@ defmodule YukiHelper do
   Documentation for YukiHelper.
   """
 
-  @type message() :: String.t()
-  @type invalid_type :: :invalid_arguments | :invalid_option
-  @type arguments() :: list(:integer | :string)
-  @type options() :: {keyword(), list()} | []
-  @type invalid_options() :: {invalid_type, message()}
-
   use Application
 
+  @typedoc """
+  Types when arguments failed to parse.
+  """
+  @type invalid_type :: :invalid_arguments | :invalid_option
+
+  @typedoc """
+  Arguments to parse.
+  """
+  @type arguments() :: list(:integer | :string)
+
+  @typedoc """
+  Parsed results.
+  """
+  @type options() :: {keyword(), list()} | []
+
+  @typedoc """
+  Any string message.
+  """
+  @type message() :: String.t()
+
+  @typedoc """
+  Results when arguments failed to parse.
+  """
+  @type invalid_options() :: {invalid_type, message()}
+
+  @doc false
   def start(_type, _args) do
     children = []
     Supervisor.start_link(children, strategy: :one_for_one)
   end
+ 
+  @doc """
+  Returns message with green color.
+  """
+  @spec success(message()) :: message()
+  def success(message), do: IO.ANSI.green() <> message <> IO.ANSI.reset()
   
-  def success(str), do: IO.ANSI.green() <> str <> IO.ANSI.reset()
-  def warning(str), do: IO.ANSI.yellow() <> str <> IO.ANSI.reset()
-  def error(str), do: IO.ANSI.red() <> str <> IO.ANSI.reset()
+  @doc """
+  Returns message with yellow color.
+  """
+  @spec warning(message()) :: message()
+  def warning(message), do: IO.ANSI.yellow() <> message <> IO.ANSI.reset()
+
+  @doc """
+  Returns message with red color.
+  """
+  @spec error(message()) :: message()
+  def error(message), do: IO.ANSI.red() <> message <> IO.ANSI.reset()
 
   @doc """
   Parses common options.

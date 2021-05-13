@@ -8,6 +8,22 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 
 ### Added
 
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+---
+
+## [v0.2.0] - 2021-05-14
+
+### Added
+
 - added support for juadge TLE (fixed value 5_000 ms)
 - added support for escript in order to provide global commands for `mix tasks`
 - added support for languages `ruby` and `c++11`
@@ -23,16 +39,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
   - `--module`
   - `--timelimit`
 - refactoring
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
-
----
+- updated typesdoc and doc
 
 ## [v0.1.0] - 2021-04-20
 
@@ -55,6 +62,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 [Semantic Versioning]: https://semver.org/
 
 <!-- Versions -->
-[Unreleased]: https://github.com/penqen/yuki_helper/releases/v0.1.0...HEAD
+[Unreleased]: https://github.com/penqen/yuki_helper/compare/v0.2.0..HEAD
 [Released]: https://github.com/penqen/yuki_helper/releases
+[0.2.0]: https://github.com/penqen/yuki_helper/compare/v0.1.0..v0.2.0
 [0.1.0]: https://github.com/penqen/yuki_helper/releases/v0.1.0

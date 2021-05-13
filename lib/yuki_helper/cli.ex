@@ -11,7 +11,7 @@ defmodule YukiHelper.CLI do
   yuki testcase.download
   ```
 
-  Usage of each command refer to help command.
+  For the usage of each command, refer to the help command.
 
   ```console
   yuki help COMMAND
@@ -30,6 +30,10 @@ defmodule YukiHelper.CLI do
   @version Mix.Project.config()[:version]
   @name Mix.Project.config()[:name]
 
+  @doc """
+  Entry point when an escript is started.
+  """
+  @spec main([String.t()]) :: none()
   def main([]), do: main(["help"])
 
   def main(["--version"]) do

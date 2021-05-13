@@ -1,7 +1,7 @@
 defmodule YukiHelper.LanguageTest do
-	use ExUnit.Case
-	doctest YukiHelper.Language
-	alias YukiHelper.{Config, Language, Languages}
+  use ExUnit.Case
+  doctest YukiHelper.Language
+  alias YukiHelper.{Config, Language, Languages}
 
   @invalid_languages [
     "worng ",
