@@ -52,19 +52,16 @@ set -x PATH path/to/.mix/escripts/yuki $PATH
 
 ## Features
 
-- [x] to dwonload testcases for any problem
-- [ ] additional options for `mix yuki.test`
-  - [ ] to specify module name
-  - [ ] `timelimit` option
-  - [ ] `force` option
-- [ ] to juadge testcase
+- [x] downloads testcases for any problem
+- [x] juages your source code
   - [x] CE
-  - [x] AC/WA/RE
-  - [ ] TLE
+  - [x] AC / WA / RE
+  - [x] TLE : fixed time (5000 ms) and --time-limit option
   - [ ] MLE
-- [ ] to support for handling unexpected error (e.g. communication)
-- [ ] to support for other languages
-- [ ] to support for other provider (except YukiCoder) if necessary
+- [ ] supports for languages
+  - [x] elixir, c++11, ruby
+- [ ] supports for provider
+  - [x] YukiCoder
 
 ## Usages
 
